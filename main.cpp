@@ -112,7 +112,7 @@ int main() {
     inputFile.close();  // Close the file after reading
 
 
-    // create futures market
+    // create options market
     OptionsMarket optionsMarket;
 
     for (int i = 0; i < companies.size(); i++) {
