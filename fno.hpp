@@ -191,8 +191,8 @@ class OptionsMarket{
     struct User{
         int userID;
         // map from companyID -> bid
-        map<int, Bid> buyOrders;
-        map<int, Bid> sellOrders;
+        map<int, Bid> callOrders;
+        map<int, Bid> putOrders;
 
         // map from companyName -> margin
         map<string, int> margin;
@@ -250,25 +250,25 @@ class OptionsMarket{
         // add bid to user
         if(orderType == 0){
             // if order doesnt exist, add it
-            if (users[userID].buyOrders.find(companyID) == users[userID].buyOrders.end()){
-                users[userID].buyOrders[companyID] = Bid(strike, amt, premium);
+            if (users[userID].callOrders.find(companyID) == users[userID].callOrders.end()){
+                users[userID].callOrders[companyID] = Bid(strike, amt, premium);
             }else{
                 // if order exists, update it
-                int newAmt = users[userID].buyOrders[companyID].amt + amt;
-                int newStrike = (users[userID].buyOrders[companyID].strike * users[userID].buyOrders[companyID].amt + strike * amt) / newAmt;
-                int newPremium = (users[userID].buyOrders[companyID].premium * users[userID].buyOrders[companyID].amt + premium * amt) / newAmt;
-                users[userID].buyOrders[companyID] = Bid(newStrike, newAmt, newPremium);
+                int newAmt = users[userID].callOrders[companyID].amt + amt;
+                int newStrike = (users[userID].callOrders[companyID].strike * users[userID].callOrders[companyID].amt + strike * amt) / newAmt;
+                int newPremium = (users[userID].callOrders[companyID].premium * users[userID].callOrders[companyID].amt + premium * amt) / newAmt;
+                users[userID].callOrders[companyID] = Bid(newStrike, newAmt, newPremium);
             }
         }else{
             // if order doesnt exist, add it
-            if (users[userID].sellOrders.find(companyID) == users[userID].sellOrders.end()){
-                users[userID].sellOrders[companyID] = Bid(strike, amt, premium);
+            if (users[userID].putOrders.find(companyID) == users[userID].putOrders.end()){
+                users[userID].putOrders[companyID] = Bid(strike, amt, premium);
             }else{
                 // if order exists, update it
-                int newAmt = users[userID].sellOrders[companyID].amt + amt;
-                int newStrike = (users[userID].sellOrders[companyID].strike * users[userID].sellOrders[companyID].amt + strike * amt) / newAmt;
-                int newPremium = (users[userID].sellOrders[companyID].premium * users[userID].sellOrders[companyID].amt + premium * amt) / newAmt;
-                users[userID].sellOrders[companyID] = Bid(newStrike, newAmt, newPremium);
+                int newAmt = users[userID].putOrders[companyID].amt + amt;
+                int newStrike = (users[userID].putOrders[companyID].strike * users[userID].putOrders[companyID].amt + strike * amt) / newAmt;
+                int newPremium = (users[userID].putOrders[companyID].premium * users[userID].putOrders[companyID].amt + premium * amt) / newAmt;
+                users[userID].putOrders[companyID] = Bid(newStrike, newAmt, newPremium);
             }
         }
     }
@@ -276,12 +276,12 @@ class OptionsMarket{
     map<int, map<string, int>> closeMarket(){
         // calculate final margin for every bid users have
         for(auto it = users.begin(); it != users.end(); ++it){
-            for(auto it2 = it->second.buyOrders.begin(); it2 != it->second.buyOrders.end(); ++it2){
+            for(auto it2 = it->second.callOrders.begin(); it2 != it->second.callOrders.end(); ++it2){
                 long long timestamp = stoll(generateTimestampWithDayPrefixFuture(contracts[it2->first].expiry));
                 int spotPrice = getspotprice[getClosestTimestamp(getspotprice, timestamp)][contracts[it2->first].companyID];
                 it->second.margin[contracts[it2->first].companyName] += (spotPrice - it2->second.strike) * it2->second.amt * contracts[it2->first].lot - it2->second.premium * it2->second.amt * contracts[it2->first].lot;
             }
-            for(auto it2 = it->second.sellOrders.begin(); it2 != it->second.sellOrders.end(); ++it2){
+            for(auto it2 = it->second.putOrders.begin(); it2 != it->second.putOrders.end(); ++it2){
                 long long timestamp = stoll(generateTimestampWithDayPrefixFuture(contracts[it2->first].expiry));
                 int spotPrice = getspotprice[getClosestTimestamp(getspotprice, timestamp)][contracts[it2->first].companyID];
                 it->second.margin[contracts[it2->first].companyName] -= (spotPrice - it2->second.strike) * it2->second.amt * contracts[it2->first].lot - it2->second.premium * it2->second.amt * contracts[it2->first].lot;
@@ -297,6 +297,5 @@ class OptionsMarket{
         return finalMargin;
     }
 };
-
 
 #endif
