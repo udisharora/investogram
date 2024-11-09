@@ -60,10 +60,11 @@ Here’s an overview of the main components of the codebase:
 ---
 
 ## Collaborators
-- **Shubham Gupta**
-- **Shivam Goel**
-- **Lakshay**
-- **Udish Arora**
+
+- **Udish Arora**: Developed spot trading functionality and data generation for spot trading.
+- **Shivam Goel**: Data Generation functionality for futures and options trading data.
+- **Lakshay**: Created the futures and options market simulator using the data generated.
+- **Shubham Gupta**: Managed user portfolios and contributed to data generation for spot trading.
 
 ---
 
