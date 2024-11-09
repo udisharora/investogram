@@ -8,42 +8,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// Function to check if a string is a valid number (can include a decimal point)
-bool isValidDouble(const string &str) {
-    // Check if the string is not empty and contains valid characters for a floating-point number
-    bool decimalPoint = false;
-    for (char c : str) {
-        if (!isdigit(c) && c != '.') {
-            return false;
-        }
-        if (c == '.') {
-            if (decimalPoint) {
-                return false; // Multiple decimal points
-            }
-            decimalPoint = true;
-        }
-    }
-    return !str.empty();
-}
-
-double safeStod(const string &str) {
-    // Check if the string is valid
-    if (isValidDouble(str)) {
-        try {
-            return stod(str); // Convert to double
-        } catch (const invalid_argument &e) {
-            cerr << "Invalid argument: " << str << endl;
-            return -1.0; // Handle error, return a default or invalid value
-        } catch (const out_of_range &e) {
-            cerr << "Out of range: " << str << endl;
-            return -1.0;
-        }
-    } else {
-        cerr << "Non-numeric value: " << str << endl;
-        return -1.0; // Return default value when input is invalid
-    }
-}
-
 int main() {
     //create fresh stock prices file
     ofstream outputFile("data/stock_prices.dat");
@@ -147,15 +111,80 @@ int main() {
 
     inputFile.close();  // Close the file after reading
 
-    map<int, map<string, int>> finalMargin = futureMarket.closeMarket();
+
+    // create futures market
+    OptionsMarket optionsMarket;
+
+    for (int i = 0; i < companies.size(); i++) {
+        optionsMarket.addContract(i, companies[i], lots[i], expiries[i]);
+    }
+
+    ifstream inputFile1("data/options_trading_orderbook.csv");  // Open the CSV file
+    string line1;
+
+    // Check if file is open
+    if (!inputFile1.is_open()) {
+        std::cerr << "Failed to open the file!" << std::endl;
+        return 1;
+    }
+    int i=1;
+
+    // Reading each line from the CSV file
+    while (std::getline(inputFile1, line1)) {
+        vector<string> row;  // Store a single row of data
+        stringstream lineStream(line1);  // Turn the line into a stream
+        string cell;
+
+        // Split the line by comma
+        while (getline(lineStream, cell, ',')) {
+            row.push_back(cell);  // Add each cell to the row
+        }
+
+        // Check if the row is not empty
+        if (!row.empty()) {
+            // Check if the row is a header
+            if (row[0] == "OrderID") {
+                continue;  // Skip the header
+            }
+
+            // Get the timestamp, company, price, buyer ID, and seller ID
+            string companyID, userID, strike, amt, orderType, timestamp, premium;
+            userID = row[1];
+            companyID = row[2];
+            timestamp = row[4];
+            strike = row[8];
+            orderType = row[6];
+            premium = row[9];
+            i++;
+            
+
+            
+            if (orderType == "Call") {
+                orderType = "0";
+            } else {
+                orderType = "1";
+            }
+            optionsMarket.addBid(stoi(userID), stoi(companyID), stod(strike), (i%10 + 1) ,stoi(orderType), stoi(premium));
+            
+        }
+    }
+
+    inputFile.close();  // Close the file after reading
+
+
+    map<int, map<string, int>> futureMargin = futureMarket.closeMarket();
+    map<int, map<string, int>> finalMargin = optionsMarket.closeMarket();
+    
 
     // add data from finalMargin through dofnotransaction function 
     for (auto it = finalMargin.begin(); it != finalMargin.end(); ++it) {
         for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
-            doFnOTransaction(it->first, it2->second, it2->first);
+            doFnOTransaction(it->first, it2->second + futureMargin[it->first][it2->first], it2->first);
         }
     }
-   
+    
+    // print the confirmation of the fno
+    cout << "Futures and Options trading successfull." << endl;
 
     //print the last trade prices for each stock
     for (auto it = last_trade_prices.begin(); it != last_trade_prices.end(); ++it) {

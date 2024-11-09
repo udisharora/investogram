@@ -4,7 +4,7 @@ set boxwidth 0.5
 set style fill solid
 set xlabel 'Company'
 set ylabel 'Profit (in USD)'
-set title 'portfolio of JohnJackson -Total Profit= -185.31$'
+set title 'portfolio of JohnJackson -Total Profit= -25605.8$'
 set grid ytics
 set xtics format ''
 set xtics rotate by -45
