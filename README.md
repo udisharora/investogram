@@ -110,6 +110,12 @@ Here’s an overview of the main components of the codebase:
    g++ graph_plotter.cpp -o graph_plotter
    ./graph_plotter
    ```
+   alternative command
+   ```bash
+   g++ graph_plotter.cpp -o graph_plotter -std=c++17 -O2 -Wall
+   ./graph_plotter
+   ```
+   
 
 3. Follow the on-screen instructions to explore different trading options, simulate trades, and manage portfolios.
 
