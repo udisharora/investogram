@@ -84,7 +84,10 @@ Here’s an overview of the main components of the codebase:
    ```bash
    g++ main.cpp -o investogram
    ```
-
+   alternative command
+   ```bash
+   g++ main.cpp -o investogram -std=c++17 -O2 -Wall
+   ```
 ---
 
 ## Usage
@@ -94,6 +97,13 @@ Here’s an overview of the main components of the codebase:
    g++ main.cpp -o main
    ./main
    ```
+   alternative command
+   ```bash
+   g++ main.cpp -o main -std=c++17 -O2 -Wall
+   ./main
+
+   ```
+
 
 2. For visualizing stock market data, execute `graph_plotter.cpp`:
    ```bash
